@@ -9,3 +9,5 @@ data/raw/
 evaluation/results.txt
 *.egg-info/
 .mypy_cache/
+apple/
+scratch/

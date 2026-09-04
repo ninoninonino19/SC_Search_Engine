@@ -11,6 +11,10 @@ scratch/
 
 # Crawled and derived data — regenerable, and large
 data/raw/
-data/parsed/
-data/index/
+
+data/parsed/*
 !data/parsed/report.txt
+!data/parsed/decisions.jsonl
+
+data/index/*
+!data/index/index.pkl

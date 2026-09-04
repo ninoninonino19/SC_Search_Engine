@@ -1,92 +1,114 @@
-# Philippine Supreme Court decision search
+# Philippine Supreme Court Decision Search
 
-A search engine built from scratch over Philippine Supreme Court decisions:
-crawler, parser, tokenizer, inverted index, and BM25 ranking, with no external
-search service in the retrieval path.
+A full-text search engine built from scratch over 14,116 Philippine Supreme Court
+decisions (2010-2026). No Elasticsearch, no Lucene, no Postgres full-text search,
+no vector database, no embedding API anywhere in the retrieval path. Every
+component - crawler, parser, tokenizer, inverted index, and BM25 ranking - is
+hand-written in Python.
 
-## The constraint that defines the project
+## Performance
 
-No Elasticsearch, no Lucene, no Postgres full-text search (`to_tsvector`,
-`tsquery`), no vector database, no embedding API in the core retrieval path.
-Storing the index *in* SQLite or Postgres is fine — delegating the search to
-them is not. The point of the project is the part those tools would do for you.
+| Metric | Score |
+|--------|-------|
+| Precision@10 | 0.879 |
+| MRR | 0.983 |
+| Median query latency | 238 ms |
+| TF-IDF baseline P@10 | 0.434 |
 
-## Running it
+Evaluated over 29 judged queries with a BM25 parameter sweep (k1=1.2, b=0.75).
+
+## Running locally
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
+python -m venv .venv
+.venv\Scripts\activate   # Windows
+# source .venv/bin/activate  # macOS/Linux
 pip install -r requirements.txt
+```
+
+### Build the corpus (takes hours, resumable)
+
+```bash
+# Set your contact email for polite crawling
+set SC_SEARCH_CONTACT=you@example.com   # Windows
+# export SC_SEARCH_CONTACT=you@example.com  # macOS/Linux
+
+python -m crawl --start-year 2010 --end-year 2026
+python -m parse
+python -m indexer
+```
+
+### Start the server
+
+```bash
 uvicorn app.main:app --reload
 ```
 
-Then open http://127.0.0.1:8000. It serves fixture data until the crawler runs.
+Open http://127.0.0.1:8000.
 
-- `GET /` — search page
-- `GET /search?q=...&page=1` — HTML results
-- `GET /api/search?q=...&limit=10&offset=0` — JSON, for testing retrieval without HTML
-- `GET /health` — active engine and document count
+## Endpoints
 
-## Layout
+- `GET /` - search page with example queries
+- `GET /search?q=...&page=1` - HTML results with highlighted snippets
+- `GET /api/search?q=...&limit=10&offset=0` - JSON API
+- `GET /about` - corpus stats and query syntax reference
+- `GET /health` - engine status
+
+## Query syntax
+
+| Syntax | Example |
+|--------|---------|
+| Terms (AND) | `grave abuse of discretion` |
+| OR | `mandamus OR certiorari` |
+| Phrase | `"beyond reasonable doubt"` |
+| Citation | `G.R. No. 192393` or `gr:192393` |
+| Ponente | `ponente:Leonen` |
+| Year | `year:2019` |
+| Division | `division:"En Banc"` |
+| Combined | `ponente:Caguioa year:2019 certiorari` |
+
+## Project layout
 
 ```
-app/          FastAPI layer. Thin by design.
-  models.py       CaseDocument, SearchResult, SearchResponse
-  engine.py       SearchEngine protocol — the seam
-  fixture_engine.py  Linear scan over fixture data. The baseline to beat.
+app/          FastAPI web layer
   main.py         Routes
-crawl/        Stage 1 — fetch and cache raw HTML
-parse/        Stage 2 — HTML to normalised CaseDocument records
-indexer/      Stages 3-5 — tokenizer, inverted index, BM25
-evaluation/   Stage 6 — judged queries, precision@10, MRR
-data/         Crawled and derived artifacts (gitignored except fixtures)
+  engine.py       SearchEngine protocol (the seam between web and retrieval)
+  models.py       CaseDocument, SearchResult, SearchResponse
+  templates/      Jinja2 templates (search, about)
+  static/         CSS (light/dark mode)
+crawl/        Stage 1 - fetch and cache raw HTML from LawPhil
+parse/        Stage 2 - HTML to normalised CaseDocument JSONL
+indexer/      Stages 3-5
+  tokenizer.py    Domain-aware tokenizer (citations, sections, Latin terms)
+  porter.py       Porter stemmer
+  codec.py        Delta + varint compression for postings
+  index.py        Positional inverted index (build, save, load, query)
+  ranking.py      BM25 and TF-IDF rankers
+  engine.py       Two-stage retrieval (boolean + ranking) with snippet highlighting
+  query.py        Query parser (terms, phrases, OR, field filters)
+evaluation/   Stage 6 - 30 judged queries, P@10, MRR, parameter sweep
+tests/        Unit tests (68 passing)
 ```
 
-`app/` depends on `app/engine.SearchEngine` and nothing else. When the real
-engine is ready, change `build_engine()` in `app/main.py`; routes and templates
-stay as they are.
+## Deployment
 
-## Build order
+Dockerfile and fly.toml are included for Fly.io deployment.
 
-1. **Crawler.** Target is LawPhil (`lawphil.net/judjuris/`) — static
-   server-rendered HTML, predictable year/month/case URL structure, no
-   JavaScript. Cache raw HTML to `data/raw/` before parsing anything; you will
-   re-parse many times and should never re-fetch. Rate-limit to ~1 req/sec, set
-   a real User-Agent with a contact address, respect `robots.txt`, and make the
-   run resumable.
-2. **Parser.** HTML to JSONL: G.R. number, title, promulgation date, division,
-   ponente, body, separate opinions. The messiest stage — markup drifts across
-   decades, consolidated cases share a G.R. number, and some pages are
-   malformed.
-3. **Tokenizer.** Lowercase, strip punctuation, remove stopwords, Porter stem.
-   Domain rules matter here: keep `G.R. No. 123456` as one token, keep the `v.`
-   in case titles, handle section references like `Art. 315(2)(a)`.
-4. **Inverted index.** Term to postings list of `(doc_id, term_freq, positions)`.
-   Store positions from the start — retrofitting them for phrase search is
-   painful. Start with a dict pickled to disk, move to SQLite when it stops
-   fitting in memory comfortably. Delta-encoding doc IDs is a good stretch goal.
-5. **Ranking.** TF-IDF first as a baseline, then BM25, so the improvement is
-   measured rather than asserted.
-6. **Evaluation.** ~30 hand-judged queries in `evaluation/queries.json`, scored
-   on precision@10 and MRR. Build this *before* tuning, not after. It is what
-   turns "I built a search engine" into "precision@10 went from 0.42 to 0.68."
+```bash
+fly auth login
+fly launch
+fly deploy
+```
 
-## Scope
+## The constraint
 
-Start with decisions from 2010–2025 (roughly 10,000–15,000). Large enough that
-linear scan is visibly too slow, small enough to rebuild the index in minutes
-while iterating. Pre-1960 decisions carry Spanish-language passages and OCR
-noise — problems worth having later, not first. Widening the range is a config
-change.
+No Elasticsearch, no Lucene, no Postgres full-text search (`to_tsvector`,
+`tsquery`), no vector database, no embedding API in the core retrieval path.
+Storing the index in SQLite or Postgres is fine - delegating the search to them
+is not. The point of the project is building the part those tools would do for you.
 
-## Open decisions
+## Corpus
 
-- **Separate opinions.** One document per case, or one per opinion? Affects
-  document length normalisation in BM25 and what a "hit" means to a reader.
-- **Index hosting.** A serverless function is a poor host for a few hundred MB
-  of postings. A small VPS or a container on Fly/Render fits better.
-
-## Data note
-
-`data/fixture_cases.json` holds placeholder records so the app runs before the
-crawl. Only the Angara entry has real citation metadata, and its body text is a
-stub. Delete the whole file once the real index is wired in.
+14,116 decisions from 2010-2026, crawled from LawPhil. 156,151 unique terms,
+32.5M tokens indexed. 74.7 MiB compressed index, 446.1 MiB corpus. See
+`data/parsed/report.txt` for the full corpus report.

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% if query %}{{ query }} - {% endif %}Supreme Court Decision Search</title>
-  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=5">
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=7">
   <script>
     (function() {
       var t = localStorage.getItem('theme');
@@ -26,18 +26,20 @@
       </button>
     </header>
 
-    <form class="query" action="/search" method="get" role="search">
-      <label class="visually-hidden" for="q">Search decisions</label>
-      <input
-        id="q"
-        name="q"
-        type="search"
-        value="{{ query }}"
-        placeholder="Search by keyword, doctrine, case name, or G.R. number..."
-        autocomplete="off"
-        autofocus>
-      <button type="submit">Search</button>
-    </form>
+    <div class="search-sticky">
+      <form class="query" action="/search" method="get" role="search">
+        <label class="visually-hidden" for="q">Search decisions</label>
+        <input
+          id="q"
+          name="q"
+          type="search"
+          value="{{ query }}"
+          placeholder="Search by keyword, doctrine, case name, or G.R. number..."
+          autocomplete="off"
+          autofocus>
+        <button type="submit">Search</button>
+      </form>
+    </div>
 
     {% if response is none %}
 
@@ -177,6 +179,7 @@
         in {{ "%.1f"|format(response.took_ms) }}&nbsp;ms
       </p>
 
+      {% set max_score = response.results[0].score %}
       <ol class="results" start="{{ response.offset + 1 }}">
         {% for hit in response.results %}
           <li class="result">
@@ -188,25 +191,54 @@
               {% endif %}
             </h2>
             <p class="meta">
+              <span class="rank">#{{ loop.index + response.offset }}</span>
               <span class="citation">{{ hit.gr_number }}</span>
               {% if hit.promulgated %}<span>{{ hit.promulgated.strftime('%d %B %Y') }}</span>{% endif %}
-              {% if hit.division %}<span>{{ hit.division }}</span>{% endif %}
-              {% if hit.ponente %}<span>{{ hit.ponente }}</span>{% endif %}
-              <span class="score" title="BM25 relevance score">{{ "%.3f"|format(hit.score) }}</span>
+              {% if hit.division %}<span class="meta-badge">{{ hit.division }}</span>{% endif %}
+              {% if hit.ponente %}<span class="meta-badge">{{ hit.ponente }}</span>{% endif %}
             </p>
             <p class="snippet">{{ hit.snippet | safe }}</p>
+            <div class="relevance" title="Relevance: {{ "%.1f"|format(hit.score / max_score * 100) }}%">
+              <div class="relevance-fill" style="width: {{ (hit.score / max_score * 100)|round|int }}%"></div>
+            </div>
           </li>
         {% endfor %}
       </ol>
 
       {% set total_pages = ((response.total_hits - 1) // response.limit) + 1 %}
+      {% set window = 2 %}
+      {% set start_page = [page - window, 1]|max %}
+      {% set end_page = [page + window, total_pages]|min %}
+
       <nav class="paging" aria-label="Search results pagination">
         {% if page > 1 %}
-          <a href="/search?q={{ query|urlencode }}&amp;page={{ page - 1 }}" class="paging-link">Previous</a>
+          <a href="/search?q={{ query|urlencode }}&amp;page={{ page - 1 }}" class="paging-arrow" aria-label="Previous page">&larr;</a>
+        {% else %}
+          <span class="paging-arrow disabled" aria-hidden="true">&larr;</span>
         {% endif %}
-        <span class="paging-info">Page {{ page }} of {{ "{:,}".format(total_pages) }}</span>
+
+        {% if start_page > 1 %}
+          <a href="/search?q={{ query|urlencode }}&amp;page=1" class="paging-num">1</a>
+          {% if start_page > 2 %}<span class="paging-ellipsis">&hellip;</span>{% endif %}
+        {% endif %}
+
+        {% for p in range(start_page, end_page + 1) %}
+          {% if p == page %}
+            <span class="paging-num paging-current" aria-current="page">{{ p }}</span>
+          {% else %}
+            <a href="/search?q={{ query|urlencode }}&amp;page={{ p }}" class="paging-num">{{ p }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if end_page < total_pages %}
+          {% if end_page < total_pages - 1 %}<span class="paging-ellipsis">&hellip;</span>{% endif %}
+          <a href="/search?q={{ query|urlencode }}&amp;page={{ total_pages }}" class="paging-num">{{ "{:,}".format(total_pages) }}</a>
+        {% endif %}
+
         {% if response.has_more %}
-          <a href="/search?q={{ query|urlencode }}&amp;page={{ page + 1 }}" class="paging-link">Next</a>
+          <a href="/search?q={{ query|urlencode }}&amp;page={{ page + 1 }}" class="paging-arrow" aria-label="Next page">&rarr;</a>
+        {% else %}
+          <span class="paging-arrow disabled" aria-hidden="true">&rarr;</span>
         {% endif %}
       </nav>
     {% endif %}

@@ -44,12 +44,15 @@ def build_engine() -> SearchEngine:
             "  python -m parse   # cached HTML -> data/parsed/decisions.jsonl\n"
             "  python -m indexer # -> data/index/index.pkl"
         )
-    return IndexEngine.load(
+    engine = IndexEngine.load(
         INDEX_PATH,
         ranker=os.environ.get("SC_SEARCH_RANKER", "bm25"),
         k1=float(os.environ.get("SC_SEARCH_K1", "1.2")),
         b=float(os.environ.get("SC_SEARCH_B", "0.75")),
     )
+    if PARSED_PATH.exists():
+        engine.index.source_path = PARSED_PATH
+    return engine
 
 
 @asynccontextmanager

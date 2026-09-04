@@ -145,7 +145,7 @@ class IndexEngine:
         self, doc_id: int, score: float, position: int | None, query_terms: list[str] | None = None,
     ) -> SearchResult:
         meta = self.index.docs[doc_id]
-        raw_snippet = self.snippet(doc_id, position)
+        raw_snippet = self.snippet(doc_id, position, query_terms=query_terms)
         highlighted = highlight(raw_snippet, query_terms or [])
         return SearchResult(
             doc_id=doc_id,
@@ -159,13 +159,22 @@ class IndexEngine:
             source_url=meta.source_url,
         )
 
-    def snippet(self, doc_id: int, position: int | None, width: int = SNIPPET_WIDTH) -> str:
+    def snippet(
+        self,
+        doc_id: int,
+        position: int | None,
+        width: int = SNIPPET_WIDTH,
+        query_terms: list[str] | None = None,
+    ) -> str:
         body = self.index.body(doc_id)
-        if position is None:
-            return _ellipsis(body, 0, width, len(body))
-
         tokens = scan(body)
-        if position >= len(tokens):
+
+        if query_terms and len(tokens) > 0:
+            best = _best_window(tokens, set(query_terms or []), width)
+            if best is not None:
+                return _ellipsis(body, best, width, len(body))
+
+        if position is None or position >= len(tokens):
             return _ellipsis(body, 0, width, len(body))
 
         start = max(0, tokens[position].start - width // 3)
@@ -209,8 +218,50 @@ class IndexEngine:
         return earliest
 
 
+def _best_window(tokens: list, query_terms: set[str], width: int) -> int | None:
+    """Find the character offset of the densest cluster of query term matches."""
+    match_positions: list[int] = []
+    for tok in tokens:
+        value = tok.text
+        if ":" in value or value == "vs":
+            if value in query_terms:
+                match_positions.append(tok.start)
+            continue
+        if value in STOPWORDS:
+            continue
+        stemmed = value if value in PROTECTED else stem(value)
+        if stemmed in query_terms:
+            match_positions.append(tok.start)
+
+    if not match_positions:
+        return None
+    if len(match_positions) == 1:
+        return max(0, match_positions[0] - width // 3)
+
+    best_start = match_positions[0]
+    best_count = 1
+    for i in range(len(match_positions)):
+        window_end = match_positions[i] + width
+        count = sum(1 for p in match_positions if match_positions[i] <= p < window_end)
+        if count > best_count:
+            best_count = count
+            best_start = match_positions[i]
+
+    return max(0, best_start - width // 6)
+
+
 def _ellipsis(text: str, start: int, width: int, length: int) -> str:
     end = min(length, start + width)
+
+    if start > 0:
+        sentence_start = text.rfind(". ", max(0, start - 60), start)
+        if sentence_start >= 0:
+            start = sentence_start + 2
+    if end < length:
+        sentence_end = text.find(". ", end, min(length, end + 40))
+        if sentence_end >= 0:
+            end = sentence_end + 1
+
     fragment = text[start:end].strip().replace("\n", " ")
     return ("…" if start > 0 else "") + fragment + ("…" if end < length else "")
 

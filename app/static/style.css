@@ -204,9 +204,14 @@ a:hover { text-decoration: underline; }
   margin: 24px 0 0;
 }
 
-.query input {
+.search-input-wrap {
   flex: 1 1 auto;
   min-width: 0;
+  position: relative;
+}
+
+.query input {
+  width: 100%;
   height: 48px;
   padding: 0 20px;
   font-family: var(--font-text);
@@ -256,6 +261,72 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
+/* Autocomplete suggestions ------------------------------------------------ */
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  margin-top: 4px;
+  padding: 4px 0;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.suggest-header {
+  padding: 8px 16px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+}
+
+.suggest-item {
+  padding: 10px 16px;
+  font-size: 15px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.suggest-item:hover,
+.suggest-item.selected {
+  background: var(--chip-hover-bg);
+}
+
+/* Loading spinner --------------------------------------------------------- */
+
+.loading {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.spinner {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--divider);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading p {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
 /* Opening ----------------------------------------------------------------- */
 
 .opening {
@@ -275,6 +346,17 @@ a:focus-visible {
   border-radius: 5px;
 }
 
+.did-you-mean {
+  font-size: 17px;
+  color: var(--ink-muted);
+}
+
+.did-you-mean a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* Section labels ---------------------------------------------------------- */
 
 .section-label {
@@ -286,6 +368,103 @@ a:focus-visible {
   color: var(--ink-muted);
   margin: 0 0 16px;
 }
+
+/* Search history section -------------------------------------------------- */
+
+.search-history-section {
+  margin: 24px 0 0;
+}
+
+.clear-history {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 0;
+  font-size: 12px;
+  color: var(--ink-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  opacity: 0.7;
+}
+
+.clear-history:hover { opacity: 1; }
+
+/* Advanced search --------------------------------------------------------- */
+
+.advanced-search {
+  margin: 24px 0 0;
+}
+
+.advanced-form {
+  margin-top: 16px;
+}
+
+.advanced-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.advanced-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  margin-bottom: 6px;
+}
+
+.advanced-field input,
+.advanced-field select {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  font-family: var(--font-text);
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  transition: border-color 0.15s;
+}
+
+.advanced-field input:focus,
+.advanced-field select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.year-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.year-range select {
+  flex: 1;
+}
+
+.year-range span {
+  color: var(--ink-muted);
+}
+
+.advanced-submit {
+  margin-top: 16px;
+  height: 40px;
+  padding: 0 24px;
+  font-family: var(--font-text);
+  font-size: 15px;
+  color: #ffffff;
+  background: var(--primary);
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.advanced-submit:hover { background: var(--primary-hover); }
 
 /* Browse by practice area ------------------------------------------------- */
 
@@ -442,14 +621,44 @@ details[open] > .syntax-toggle::before {
 
 .search-sticky .query { margin: 0; }
 
-/* Tally ------------------------------------------------------------------- */
+/* Results header ---------------------------------------------------------- */
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px 0 0;
+}
 
 .tally {
-  margin: 20px 0 0;
+  margin: 0;
   font-size: 14px;
   color: var(--ink-muted);
   letter-spacing: -0.224px;
 }
+
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.export-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.export-btn svg { flex-shrink: 0; }
 
 /* Results ----------------------------------------------------------------- */
 
@@ -540,6 +749,26 @@ details[open] > .syntax-toggle::before {
   border-bottom: 2px solid var(--highlight-border);
 }
 
+/* Result actions ---------------------------------------------------------- */
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.result-link {
+  font-size: 13px;
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.result-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 /* Relevance bar ----------------------------------------------------------- */
 
 .relevance {
@@ -556,6 +785,12 @@ details[open] > .syntax-toggle::before {
   border-radius: 2px;
   opacity: 0.45;
   transition: width 0.3s ease;
+}
+
+/* Related searches -------------------------------------------------------- */
+
+.related-searches {
+  margin: 24px 0 0;
 }
 
 /* Paging ------------------------------------------------------------------ */
@@ -645,6 +880,90 @@ details[open] > .syntax-toggle::before {
 .paging-info {
   color: var(--ink-muted);
   font-size: 14px;
+}
+
+/* Decision detail page ---------------------------------------------------- */
+
+.decision-page {
+  max-width: 800px;
+}
+
+.decision-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0 24px;
+  font-size: 14px;
+}
+
+.back-link {
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+
+.back-link:hover { color: var(--primary); }
+
+.source-link {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.source-link:hover { text-decoration: underline; }
+
+.decision-header {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.decision-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+}
+
+.decision-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
+.decision-body {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink);
+  word-break: break-word;
+  white-space: pre-line;
+}
+
+.separate-opinions,
+.footnotes-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--divider);
+}
+
+.separate-opinions h2,
+.footnotes-section h2 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+
+.opinion-text,
+.footnotes-text {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-muted);
+  margin-bottom: 16px;
+  white-space: pre-line;
 }
 
 /* Stats table ------------------------------------------------------------- */
@@ -967,4 +1286,26 @@ footer a:hover { color: var(--primary); }
   .paging-num, .paging-arrow { min-width: 32px; height: 32px; font-size: 13px; }
   .footer-grid { grid-template-columns: 1fr; gap: 20px; }
   .footer-bottom { flex-direction: column; gap: 4px; text-align: center; }
+
+  .advanced-grid { grid-template-columns: 1fr; }
+  .decision-title { font-size: 20px; }
+  .decision-body { font-size: 15px; }
+  .results-header { flex-wrap: wrap; gap: 8px; }
+}
+
+/* Larger touch targets on mobile ------------------------------------------ */
+
+@media (max-width: 640px) {
+  .chip {
+    padding: 10px 18px;
+    font-size: 15px;
+  }
+
+  .query input { height: 52px; font-size: 16px; }
+  .query button { height: 52px; font-size: 16px; }
+
+  .suggest-item { padding: 14px 16px; }
+
+  .result-actions { gap: 16px; }
+  .result-link { font-size: 14px; padding: 4px 0; }
 }

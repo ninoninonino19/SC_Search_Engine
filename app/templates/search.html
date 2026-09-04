@@ -4,7 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% if query %}{{ query }} - {% endif %}Supreme Court Decision Search</title>
-  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=9">
+  <meta property="og:title" content="{% if query %}{{ query }} - {% endif %}Supreme Court Decision Search">
+  <meta property="og:description" content="Full-text search across {{ '{:,}'.format(engine.doc_count) }} Philippine Supreme Court decisions (2010-2026). Built entirely from scratch.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SC Decision Search">
+  <meta name="description" content="Full-text search across {{ '{:,}'.format(engine.doc_count) }} Philippine Supreme Court decisions (2010-2026). Built entirely from scratch.">
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=10">
   <script>
     (function() {
       var t = localStorage.getItem('theme');
@@ -36,21 +41,31 @@
     {% endif %}
 
     <div class="search-sticky">
-      <form class="query" action="/search" method="get" role="search">
+      <form class="query" action="/search" method="get" role="search" id="search-form">
         <label class="visually-hidden" for="q">Search decisions</label>
-        <input
-          id="q"
-          name="q"
-          type="search"
-          value="{{ query }}"
-          placeholder="Search by keyword, doctrine, case name, or G.R. number..."
-          autocomplete="off"
-          autofocus>
+        <div class="search-input-wrap">
+          <input
+            id="q"
+            name="q"
+            type="search"
+            value="{{ query }}"
+            placeholder="Search by keyword, doctrine, case name, or G.R. number..."
+            autocomplete="off"
+            autofocus>
+          <div id="suggestions" class="suggestions" hidden></div>
+          <div id="search-history" class="suggestions" hidden></div>
+        </div>
         <button type="submit">Search</button>
       </form>
       {% if response is none %}
       <p class="kbd-hint">Press <kbd>/</kbd> to focus search</p>
       {% endif %}
+    </div>
+
+    {# Loading spinner #}
+    <div id="loading" class="loading" hidden>
+      <div class="spinner"></div>
+      <p>Searching decisions...</p>
     </div>
 
     {% if response is none %}
@@ -73,6 +88,65 @@
           <div class="stats-strip-label">Response</div>
         </div>
       </div>
+
+      {# Search history #}
+      <section id="history-section" class="search-history-section" hidden>
+        <h2 class="section-label">Recent searches</h2>
+        <div id="history-chips" class="filter-chips"></div>
+        <button type="button" class="clear-history" onclick="clearHistory()">Clear history</button>
+      </section>
+
+      {# Advanced search form #}
+      <section class="advanced-search">
+        <details>
+          <summary class="syntax-toggle">Advanced search</summary>
+          <form class="advanced-form" action="/search" method="get">
+            <div class="advanced-grid">
+              <div class="advanced-field">
+                <label for="adv-q">Keywords</label>
+                <input type="text" id="adv-q" name="q" placeholder="e.g., grave abuse of discretion">
+              </div>
+              <div class="advanced-field">
+                <label for="adv-ponente">Ponente</label>
+                <select id="adv-ponente" onchange="updateAdvQuery()">
+                  <option value="">Any</option>
+                  {% for p in ponentes %}
+                  <option value="{{ p }}">{{ p }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="advanced-field">
+                <label for="adv-division">Division</label>
+                <select id="adv-division" onchange="updateAdvQuery()">
+                  <option value="">Any</option>
+                  {% for d in divisions %}
+                  <option value="{{ d }}">{{ d }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="advanced-field">
+                <label for="adv-year-from">Year range</label>
+                <div class="year-range">
+                  <select id="adv-year-from" onchange="updateAdvQuery()">
+                    <option value="">From</option>
+                    {% for y in range(year_range[1], year_range[0] - 1, -1) %}
+                    <option value="{{ y }}">{{ y }}</option>
+                    {% endfor %}
+                  </select>
+                  <span>&ndash;</span>
+                  <select id="adv-year-to" onchange="updateAdvQuery()">
+                    <option value="">To</option>
+                    {% for y in range(year_range[1], year_range[0] - 1, -1) %}
+                    <option value="{{ y }}">{{ y }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="advanced-submit">Search</button>
+          </form>
+        </details>
+      </section>
 
       <section class="browse">
         <h2 class="section-label">Browse by practice area</h2>
@@ -201,27 +275,35 @@
     {% elif response.total_hits == 0 %}
       <section class="opening">
         <p>No decisions match <strong>{{ query }}</strong>.</p>
+        {% if suggestion %}
+        <p class="did-you-mean">Did you mean
+          <a href="/search?q={{ suggestion|urlencode }}"><strong>{{ suggestion }}</strong></a>?
+        </p>
+        {% else %}
         <p>All terms must appear in a decision. Try removing a word to widen the search,
         or use <code>OR</code> between alternatives.</p>
+        {% endif %}
       </section>
 
     {% else %}
-      <p class="tally">
-        {{ "{:,}".format(response.total_hits) }}
-        {{ "decision" if response.total_hits == 1 else "decisions" }}
-        in {{ "%.1f"|format(response.took_ms) }}&nbsp;ms
-      </p>
+      <div class="results-header">
+        <p class="tally">
+          {{ "{:,}".format(response.total_hits) }}
+          {{ "decision" if response.total_hits == 1 else "decisions" }}
+          in {{ "%.1f"|format(response.took_ms) }}&nbsp;ms
+        </p>
+        <a href="/export?q={{ query|urlencode }}&amp;limit=100" class="export-btn" title="Export results to CSV">
+          <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3v10m0 0l-3-3m3 3l3-3M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2"/></svg>
+          CSV
+        </a>
+      </div>
 
       {% set max_score = response.results[0].score %}
       <ol class="results" start="{{ response.offset + 1 }}">
         {% for hit in response.results %}
           <li class="result">
             <h2>
-              {% if hit.source_url %}
-                <a href="{{ hit.source_url }}" rel="noopener" target="_blank">{{ hit.title }}</a>
-              {% else %}
-                {{ hit.title }}
-              {% endif %}
+              <a href="/decision/{{ hit.doc_id }}">{{ hit.title }}</a>
             </h2>
             <p class="meta">
               <span class="rank">#{{ loop.index + response.offset }}</span>
@@ -231,12 +313,32 @@
               {% if hit.ponente %}<span class="meta-badge">{{ hit.ponente }}</span>{% endif %}
             </p>
             <p class="snippet">{{ hit.snippet | safe }}</p>
+            {% if max_score > 0 %}
             <div class="relevance" title="Relevance: {{ "%.1f"|format(hit.score / max_score * 100) }}%">
               <div class="relevance-fill" style="width: {{ (hit.score / max_score * 100)|round|int }}%"></div>
+            </div>
+            {% endif %}
+            <div class="result-actions">
+              {% if hit.source_url %}
+              <a href="{{ hit.source_url }}" rel="noopener" target="_blank" class="result-link">LawPhil &nearr;</a>
+              {% endif %}
+              <a href="/decision/{{ hit.doc_id }}" class="result-link">Full text &rarr;</a>
             </div>
           </li>
         {% endfor %}
       </ol>
+
+      {# Related searches #}
+      {% if related %}
+      <section class="related-searches">
+        <h2 class="section-label">Related searches</h2>
+        <div class="filter-chips">
+          {% for term in related %}
+          <a href="/search?q={{ (query ~ ' ' ~ term)|urlencode }}" class="chip">{{ query }} {{ term }}</a>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
 
       {% set total_pages = ((response.total_hits - 1) // response.limit) + 1 %}
       {% set window = 2 %}
@@ -308,6 +410,7 @@
   </div>
 
   <script>
+    /* Theme toggle */
     function toggleTheme() {
       var root = document.documentElement;
       var current = root.getAttribute('data-theme');
@@ -317,14 +420,183 @@
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('theme', next); } catch(e) {}
     }
+
+    /* Keyboard shortcut */
     document.addEventListener('keydown', function(e) {
       if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         var active = document.activeElement;
-        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
         e.preventDefault();
         document.getElementById('q').focus();
       }
+      if (e.key === 'Escape') {
+        document.getElementById('suggestions').hidden = true;
+        document.getElementById('search-history').hidden = true;
+      }
     });
+
+    /* Loading spinner */
+    document.getElementById('search-form').addEventListener('submit', function() {
+      var q = document.getElementById('q').value.trim();
+      if (q) {
+        document.getElementById('loading').hidden = false;
+        saveHistory(q);
+      }
+    });
+
+    /* Search history */
+    var HISTORY_KEY = 'sc-search-history';
+    var MAX_HISTORY = 10;
+
+    function getHistory() {
+      try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+      catch(e) { return []; }
+    }
+
+    function saveHistory(query) {
+      try {
+        var history = getHistory().filter(function(h) { return h !== query; });
+        history.unshift(query);
+        if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      } catch(e) {}
+    }
+
+    function clearHistory() {
+      try { localStorage.removeItem(HISTORY_KEY); } catch(e) {}
+      var section = document.getElementById('history-section');
+      if (section) section.hidden = true;
+    }
+
+    function renderHistory() {
+      var section = document.getElementById('history-section');
+      var container = document.getElementById('history-chips');
+      if (!section || !container) return;
+      var history = getHistory();
+      if (history.length === 0) { section.hidden = true; return; }
+      section.hidden = false;
+      container.innerHTML = history.map(function(q) {
+        return '<a href="/search?q=' + encodeURIComponent(q) + '" class="chip">' +
+          q.replace(/</g, '&lt;') + '</a>';
+      }).join('');
+    }
+
+    /* Show history on homepage */
+    {% if response is none %}
+    renderHistory();
+    {% endif %}
+
+    /* Autocomplete */
+    var suggestBox = document.getElementById('suggestions');
+    var searchInput = document.getElementById('q');
+    var debounceTimer = null;
+    var selectedIndex = -1;
+
+    searchInput.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      var val = this.value.trim();
+      if (val.length < 2) { suggestBox.hidden = true; return; }
+      debounceTimer = setTimeout(function() { fetchSuggestions(val); }, 200);
+    });
+
+    searchInput.addEventListener('focus', function() {
+      if (this.value.trim().length < 2) {
+        showHistoryDropdown();
+      }
+    });
+
+    searchInput.addEventListener('keydown', function(e) {
+      var items = suggestBox.querySelectorAll('.suggest-item');
+      if (!items.length || suggestBox.hidden) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+        updateSelected(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = Math.max(selectedIndex - 1, -1);
+        updateSelected(items);
+      } else if (e.key === 'Enter' && selectedIndex >= 0) {
+        e.preventDefault();
+        searchInput.value = items[selectedIndex].textContent;
+        suggestBox.hidden = true;
+        document.getElementById('search-form').submit();
+      }
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.search-input-wrap')) {
+        suggestBox.hidden = true;
+        document.getElementById('search-history').hidden = true;
+      }
+    });
+
+    function fetchSuggestions(prefix) {
+      fetch('/api/suggest?q=' + encodeURIComponent(prefix) + '&limit=8')
+        .then(function(r) { return r.json(); })
+        .then(function(terms) {
+          if (!terms.length) { suggestBox.hidden = true; return; }
+          selectedIndex = -1;
+          suggestBox.innerHTML = terms.map(function(t) {
+            return '<div class="suggest-item">' + t.replace(/</g, '&lt;') + '</div>';
+          }).join('');
+          suggestBox.hidden = false;
+          suggestBox.querySelectorAll('.suggest-item').forEach(function(el) {
+            el.addEventListener('mousedown', function(e) {
+              e.preventDefault();
+              searchInput.value = this.textContent;
+              suggestBox.hidden = true;
+              document.getElementById('search-form').submit();
+            });
+          });
+        })
+        .catch(function() { suggestBox.hidden = true; });
+    }
+
+    function showHistoryDropdown() {
+      var history = getHistory();
+      var histBox = document.getElementById('search-history');
+      if (!history.length || !histBox) return;
+      histBox.innerHTML = '<div class="suggest-header">Recent</div>' +
+        history.slice(0, 5).map(function(q) {
+          return '<div class="suggest-item">' + q.replace(/</g, '&lt;') + '</div>';
+        }).join('');
+      histBox.hidden = false;
+      histBox.querySelectorAll('.suggest-item').forEach(function(el) {
+        el.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          searchInput.value = this.textContent;
+          histBox.hidden = true;
+          document.getElementById('search-form').submit();
+        });
+      });
+    }
+
+    function updateSelected(items) {
+      items.forEach(function(el, i) {
+        el.classList.toggle('selected', i === selectedIndex);
+      });
+    }
+
+    /* Advanced search form */
+    function updateAdvQuery() {
+      var q = document.getElementById('adv-q');
+      var ponente = document.getElementById('adv-ponente');
+      var division = document.getElementById('adv-division');
+      var yearFrom = document.getElementById('adv-year-from');
+      var yearTo = document.getElementById('adv-year-to');
+      if (!q) return;
+
+      var base = q.value.replace(/\s*(ponente|division|year):\S+/g, '').trim();
+      var parts = [base];
+      if (ponente && ponente.value) parts.push('ponente:' + ponente.value);
+      if (division && division.value) {
+        var dv = division.value.indexOf(' ') >= 0 ? '"' + division.value + '"' : division.value;
+        parts.push('division:' + dv);
+      }
+      if (yearFrom && yearFrom.value) parts.push('year:' + yearFrom.value);
+      q.value = parts.filter(Boolean).join(' ');
+    }
   </script>
 </body>
 </html>

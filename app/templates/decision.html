@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ meta.title }} - SC Decision Search</title>
+  <meta property="og:title" content="{{ meta.title }}">
+  <meta property="og:description" content="{{ meta.gr_number }} — {{ meta.division or '' }} {% if meta.ponente %}({{ meta.ponente }}, ponente){% endif %}">
+  <meta property="og:type" content="article">
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=10">
+  <script>
+    (function() {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+  <div class="page decision-page">
+
+    <header class="masthead">
+      <div class="masthead-text">
+        <a class="wordmark" href="/">Philippine Supreme Court Decisions</a>
+      </div>
+      <button class="theme-toggle" type="button" aria-label="Toggle theme" onclick="toggleTheme()">
+        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+      </button>
+    </header>
+
+    <nav class="decision-nav">
+      <a href="javascript:history.back()" class="back-link">&larr; Back to results</a>
+      {% if meta.source_url %}
+      <a href="{{ meta.source_url }}" target="_blank" rel="noopener" class="source-link">View on LawPhil &nearr;</a>
+      {% endif %}
+    </nav>
+
+    <article class="decision">
+      <header class="decision-header">
+        <h1 class="decision-title">{{ meta.title }}</h1>
+        <div class="decision-meta">
+          <span class="citation">{{ meta.gr_number }}</span>
+          {% if meta.promulgated %}<span>{{ meta.promulgated }}</span>{% endif %}
+          {% if meta.division %}<span class="meta-badge">{{ meta.division }}</span>{% endif %}
+          {% if meta.ponente %}<span class="meta-badge">{{ meta.ponente }}, <em>ponente</em></span>{% endif %}
+        </div>
+      </header>
+
+      <div class="decision-body">{{ record.get('body', '') }}</div>
+
+      {% if record.get('separate_opinions') %}
+      <section class="separate-opinions">
+        <h2>Separate Opinions</h2>
+        {% for opinion in record.get('separate_opinions', []) %}
+        <div class="opinion-text">{{ opinion }}</div>
+        {% endfor %}
+      </section>
+      {% endif %}
+
+      {% if record.get('footnotes') %}
+      <section class="footnotes-section">
+        <h2>Footnotes</h2>
+        <div class="footnotes-text">{{ record.get('footnotes', '') }}</div>
+      </section>
+      {% endif %}
+    </article>
+
+    <footer>
+      <div class="footer-bottom">
+        <p>A personal project &mdash; not affiliated with the Supreme Court of the Philippines.</p>
+        <p><a href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">Back to top &uarr;</a></p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      var root = document.documentElement;
+      var current = root.getAttribute('data-theme');
+      var isDark = current === 'dark' ||
+        (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      var next = isDark ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch(e) {}
+    }
+  </script>
+</body>
+</html>

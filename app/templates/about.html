@@ -4,7 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>About - Supreme Court Decision Search</title>
-  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=9">
+  <meta property="og:title" content="About - Supreme Court Decision Search">
+  <meta property="og:description" content="A full-text search engine built entirely from scratch over {{ stats.doc_count }} Philippine Supreme Court decisions.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SC Decision Search">
+  <meta name="description" content="A full-text search engine built entirely from scratch over {{ stats.doc_count }} Philippine Supreme Court decisions.">
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=10">
   <script>
     (function() {
       var t = localStorage.getItem('theme');

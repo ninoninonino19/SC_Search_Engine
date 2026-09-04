@@ -3,18 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% if query %}{{ query }} - {% endif %}Supreme Court decision search</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=2">
+  <title>{% if query %}{{ query }} - {% endif %}Supreme Court Decision Search</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=5">
+  <script>
+    (function() {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
 </head>
 <body>
   <div class="page">
 
     <header class="masthead">
-      <a class="wordmark" href="/">Philippine Supreme Court decisions</a>
-      <p class="corpus">{{ "{:,}".format(engine.doc_count) }} decisions indexed</p>
+      <div class="masthead-text">
+        <a class="wordmark" href="/">Philippine Supreme Court Decisions</a>
+        <p class="corpus">{{ "{:,}".format(engine.doc_count) }} decisions &middot; 2010-2026</p>
+      </div>
+      <button class="theme-toggle" type="button" aria-label="Toggle theme" onclick="toggleTheme()">
+        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+      </button>
     </header>
 
     <form class="query" action="/search" method="get" role="search">
@@ -24,50 +33,128 @@
         name="q"
         type="search"
         value="{{ query }}"
-        placeholder="Search decisions..."
+        placeholder="Search by keyword, doctrine, case name, or G.R. number..."
         autocomplete="off"
         autofocus>
       <button type="submit">Search</button>
     </form>
 
     {% if response is none %}
-      <section class="opening">
-        <p>Full-text search over Philippine Supreme Court decisions (2010-2026),
-        built from scratch. No external search service sits behind this box.</p>
+
+      <section class="browse">
+        <h2 class="section-label">Browse by practice area</h2>
+
+        <div class="practice-areas">
+          <div class="practice-area">
+            <h3>Criminal Law</h3>
+            <ul>
+              <li><a href="/search?q=chain+of+custody+dangerous+drugs">chain of custody dangerous drugs</a></li>
+              <li><a href="/search?q=%22beyond+reasonable+doubt%22">"beyond reasonable doubt"</a></li>
+              <li><a href="/search?q=illegal+possession+of+firearms">illegal possession of firearms</a></li>
+              <li><a href="/search?q=murder+treachery+qualifying+circumstance">murder treachery qualifying circumstance</a></li>
+            </ul>
+          </div>
+
+          <div class="practice-area">
+            <h3>Labor</h3>
+            <ul>
+              <li><a href="/search?q=illegal+dismissal+reinstatement">illegal dismissal reinstatement</a></li>
+              <li><a href="/search?q=constructive+dismissal+backwages">constructive dismissal backwages</a></li>
+              <li><a href="/search?q=separation+pay+redundancy">separation pay redundancy</a></li>
+              <li><a href="/search?q=employer-employee+relationship">employer-employee relationship</a></li>
+            </ul>
+          </div>
+
+          <div class="practice-area">
+            <h3>Civil</h3>
+            <ul>
+              <li><a href="/search?q=breach+of+contract+damages">breach of contract damages</a></li>
+              <li><a href="/search?q=ejectment+unlawful+detainer">ejectment unlawful detainer</a></li>
+              <li><a href="/search?q=foreclosure+of+mortgage">foreclosure of mortgage</a></li>
+              <li><a href="/search?q=obligation+solidary+liability">obligation solidary liability</a></li>
+            </ul>
+          </div>
+
+          <div class="practice-area">
+            <h3>Remedial / Procedure</h3>
+            <ul>
+              <li><a href="/search?q=grave+abuse+of+discretion">grave abuse of discretion</a></li>
+              <li><a href="/search?q=certiorari+prohibition+mandamus">certiorari prohibition mandamus</a></li>
+              <li><a href="/search?q=res+judicata">res judicata</a></li>
+              <li><a href="/search?q=forum+shopping">forum shopping</a></li>
+            </ul>
+          </div>
+
+          <div class="practice-area">
+            <h3>Constitutional</h3>
+            <ul>
+              <li><a href="/search?q=due+process+of+law">due process of law</a></li>
+              <li><a href="/search?q=equal+protection+clause">equal protection clause</a></li>
+              <li><a href="/search?q=%22right+to+speedy+trial%22">"right to speedy trial"</a></li>
+              <li><a href="/search?q=division%3A%22En+Banc%22+constitutional">division:"En Banc" constitutional</a></li>
+            </ul>
+          </div>
+
+          <div class="practice-area">
+            <h3>Corporate / Tax</h3>
+            <ul>
+              <li><a href="/search?q=piercing+the+veil+of+corporate+fiction">piercing the veil of corporate fiction</a></li>
+              <li><a href="/search?q=intra-corporate+dispute">intra-corporate dispute</a></li>
+              <li><a href="/search?q=tax+assessment+prescription">tax assessment prescription</a></li>
+              <li><a href="/search?q=%22doctrine+of+condonation%22">"doctrine of condonation"</a></li>
+            </ul>
+          </div>
+        </div>
       </section>
 
-      <section class="examples">
-        <div class="example-group">
-          <h3>Doctrines</h3>
-          <ul>
-            <li><a href="/search?q=grave+abuse+of+discretion">grave abuse of discretion</a></li>
-            <li><a href="/search?q=%22doctrine+of+condonation%22">"doctrine of condonation"</a></li>
-            <li><a href="/search?q=res+judicata">res judicata</a></li>
-            <li><a href="/search?q=piercing+the+veil+of+corporate+fiction">piercing the veil of corporate fiction</a></li>
-          </ul>
+      <section class="quick-filters">
+        <h2 class="section-label">Quick filters</h2>
+        <div class="filter-chips">
+          <a href="/search?q=division%3A%22En+Banc%22" class="chip">En Banc</a>
+          <a href="/search?q=ponente%3ALeonen" class="chip">J. Leonen</a>
+          <a href="/search?q=ponente%3ACaguioa" class="chip">J. Caguioa</a>
+          <a href="/search?q=ponente%3ALazaro-Javier" class="chip">J. Lazaro-Javier</a>
+          <a href="/search?q=year%3A2025" class="chip">2025</a>
+          <a href="/search?q=year%3A2024" class="chip">2024</a>
+          <a href="/search?q=year%3A2023" class="chip">2023</a>
         </div>
-        <div class="example-group">
-          <h3>Citations</h3>
-          <ul>
-            <li><a href="/search?q=G.R.+No.+192393">G.R. No. 192393</a></li>
-            <li><a href="/search?q=gr%3A176831">gr:176831</a></li>
-          </ul>
-        </div>
-        <div class="example-group">
-          <h3>Filters</h3>
-          <ul>
-            <li><a href="/search?q=ponente%3ALeonen">ponente:Leonen</a></li>
-            <li><a href="/search?q=ponente%3ACaguioa+year%3A2019">ponente:Caguioa year:2019</a></li>
-            <li><a href="/search?q=division%3A%22En+Banc%22+constitutional">division:"En Banc" constitutional</a></li>
-          </ul>
-        </div>
-        <div class="example-group">
-          <h3>Natural language</h3>
-          <ul>
-            <li><a href="/search?q=chain+of+custody+dangerous+drugs">chain of custody dangerous drugs</a></li>
-            <li><a href="/search?q=constructive+dismissal+backwages">constructive dismissal backwages</a></li>
-            <li><a href="/search?q=mandamus+OR+certiorari">mandamus OR certiorari</a></li>
-          </ul>
+      </section>
+
+      <section class="syntax-ref">
+        <h2 class="section-label">Search syntax</h2>
+        <div class="syntax-grid">
+          <div class="syntax-item">
+            <span class="syntax-label">All terms</span>
+            <code>grave abuse of discretion</code>
+          </div>
+          <div class="syntax-item">
+            <span class="syntax-label">Exact phrase</span>
+            <code>"beyond reasonable doubt"</code>
+          </div>
+          <div class="syntax-item">
+            <span class="syntax-label">Either term</span>
+            <code>mandamus OR certiorari</code>
+          </div>
+          <div class="syntax-item">
+            <span class="syntax-label">Case citation</span>
+            <code>G.R. No. 192393</code> or <code>gr:192393</code>
+          </div>
+          <div class="syntax-item">
+            <span class="syntax-label">By ponente</span>
+            <code>ponente:Leonen</code>
+          </div>
+          <div class="syntax-item">
+            <span class="syntax-label">By year</span>
+            <code>year:2019</code>
+          </div>
+          <div class="syntax-item">
+            <span class="syntax-label">By division</span>
+            <code>division:"En Banc"</code>
+          </div>
+          <div class="syntax-item">
+            <span class="syntax-label">Combined</span>
+            <code>ponente:Caguioa year:2019 certiorari</code>
+          </div>
         </div>
       </section>
 
@@ -79,7 +166,7 @@
     {% elif response.total_hits == 0 %}
       <section class="opening">
         <p>No decisions match <strong>{{ query }}</strong>.</p>
-        <p class="try">All terms must appear in a decision. Try removing a word to widen the search,
+        <p>All terms must appear in a decision. Try removing a word to widen the search,
         or use <code>OR</code> between alternatives.</p>
       </section>
 
@@ -132,6 +219,15 @@
   </div>
 
   <script>
+    function toggleTheme() {
+      var root = document.documentElement;
+      var current = root.getAttribute('data-theme');
+      var isDark = current === 'dark' ||
+        (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      var next = isDark ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch(e) {}
+    }
     document.addEventListener('keydown', function(e) {
       if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         var active = document.activeElement;

@@ -3,65 +3,188 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>About - Supreme Court decision search</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=2">
+  <title>About - Supreme Court Decision Search</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=6">
+  <script>
+    (function() {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
 </head>
 <body>
   <div class="page">
 
     <header class="masthead">
-      <a class="wordmark" href="/">Philippine Supreme Court decisions</a>
-      <p class="corpus">{{ stats.doc_count }} decisions indexed</p>
+      <div class="masthead-text">
+        <a class="wordmark" href="/">Philippine Supreme Court Decisions</a>
+        <p class="corpus">{{ stats.doc_count }} decisions indexed</p>
+      </div>
+      <button class="theme-toggle" type="button" aria-label="Toggle theme" onclick="toggleTheme()">
+        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+      </button>
     </header>
 
-    <section class="opening" style="margin-top: 2rem;">
-      <h1 style="font-family: var(--serif); font-size: 1.375rem; font-weight: 500; margin: 0 0 1.25rem;">About this search engine</h1>
-
-      <p>A full-text search engine built from scratch over Philippine Supreme Court
-      decisions (2010-2026). No Elasticsearch, no Lucene, no Postgres full-text
-      search, no vector database, no embedding API anywhere in the retrieval path.</p>
-
-      <p>Every component (crawler, parser, tokenizer, inverted index, and
-      ranking function) is hand-written in Python.</p>
+    <!-- What it is -->
+    <section class="about-section">
+      <h1 class="about-heading">About this search engine</h1>
+      <p class="about-lead">A full-text search engine built entirely from scratch over
+      <strong>{{ stats.doc_count }} Philippine Supreme Court decisions</strong> promulgated
+      between 2010 and 2026.</p>
+      <p class="about-lead">No Elasticsearch, no Lucene, no Postgres full-text search,
+      no vector database, and no embedding API anywhere in the retrieval path. Every
+      component - crawler, parser, tokenizer, inverted index, and ranking function - is
+      hand-written in Python.</p>
     </section>
 
-    <table class="stats-table">
-      <tbody>
-        <tr><th>Documents</th><td>{{ stats.doc_count }}</td></tr>
-        <tr><th>Retrieval</th><td>{{ stats.engine_name }}</td></tr>
-        {% if stats.vocabulary is defined %}
-        <tr><th>Vocabulary</th><td>{{ stats.vocabulary }} terms</td></tr>
-        <tr><th>Tokens indexed</th><td>{{ stats.total_tokens }}</td></tr>
-        <tr><th>Avg document length</th><td>{{ stats.avg_doc_length }} tokens</td></tr>
-        <tr><th>Index size</th><td>{{ stats.index_size_mb }} MiB</td></tr>
-        <tr><th>Corpus size</th><td>{{ stats.corpus_size_mb }} MiB</td></tr>
-        <tr><th>Build time</th><td>{{ stats.build_seconds }}s</td></tr>
-        {% endif %}
-      </tbody>
-    </table>
-
-    <section class="opening" style="margin-top: 2rem;">
-      <h2 style="font-family: var(--serif); font-size: 1.125rem; font-weight: 500; margin: 0 0 0.75rem;">Query syntax</h2>
-      <ul style="padding-left: 1.25rem; margin: 0 0 1rem;">
-        <li><strong>Terms</strong> - <code>grave abuse of discretion</code> (all terms must appear)</li>
-        <li><strong>OR</strong> - <code>mandamus OR certiorari</code></li>
-        <li><strong>Phrases</strong> - <code>"beyond reasonable doubt"</code></li>
-        <li><strong>Citation</strong> - <code>G.R. No. 192393</code> or <code>gr:192393</code></li>
-        <li><strong>Ponente</strong> - <code>ponente:Leonen</code></li>
-        <li><strong>Year</strong> - <code>year:2019</code></li>
-        <li><strong>Division</strong> - <code>division:"En Banc"</code></li>
-        <li><strong>Combined</strong> - <code>ponente:Caguioa year:2019 certiorari</code></li>
-      </ul>
+    <!-- Key numbers -->
+    {% if stats.vocabulary is defined %}
+    <section class="about-section">
+      <h2 class="about-subheading">Corpus at a glance</h2>
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.doc_count }}</div>
+          <div class="stat-label">Decisions indexed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.vocabulary }}</div>
+          <div class="stat-label">Unique terms</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.total_tokens }}</div>
+          <div class="stat-label">Tokens indexed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.avg_doc_length }}</div>
+          <div class="stat-label">Avg tokens per decision</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.index_size_mb }} MiB</div>
+          <div class="stat-label">Compressed index</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.corpus_size_mb }} MiB</div>
+          <div class="stat-label">Total corpus size</div>
+        </div>
+      </div>
     </section>
+    {% endif %}
+
+    <!-- How it works -->
+    <section class="about-section">
+      <h2 class="about-subheading">How it works</h2>
+      <ol class="how-list">
+        <li>
+          Crawl decisions from the LawPhil Project
+          <span class="how-detail">Polite, resumable crawler fetches the full text of every decision from 2010 onward.</span>
+        </li>
+        <li>
+          Parse and normalize each decision
+          <span class="how-detail">Extracts case title, G.R. number, date, ponente, division, and body text from raw HTML.</span>
+        </li>
+        <li>
+          Tokenize with a domain-aware tokenizer
+          <span class="how-detail">Handles legal citations (G.R. No. 192393), section references, and Latin terms (res judicata, habeas corpus) as single tokens.</span>
+        </li>
+        <li>
+          Build a positional inverted index
+          <span class="how-detail">Records every position of every term in every document. Postings are compressed with delta encoding and variable-byte (varint) coding.</span>
+        </li>
+        <li>
+          Rank with BM25
+          <span class="how-detail">Tuned at k1=1.2, b=0.75 via parameter sweep over 29 judged queries. Achieves P@10 = 0.879 and MRR = 0.983.</span>
+        </li>
+        <li>
+          Return highlighted snippets
+          <span class="how-detail">Snippets are anchored at the first matching position in the document and highlighted using the same stemmer as the index.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Search syntax -->
+    <section class="about-section">
+      <h2 class="about-subheading">Search syntax</h2>
+      <p class="about-lead">All terms are required by default (AND logic). Use the operators below to refine your search.</p>
+      <table class="syntax-table">
+        <tbody>
+          <tr>
+            <th>All terms</th>
+            <td><code>grave abuse of discretion</code></td>
+          </tr>
+          <tr>
+            <th>Exact phrase</th>
+            <td><code>"beyond reasonable doubt"</code></td>
+          </tr>
+          <tr>
+            <th>Either term</th>
+            <td><code>mandamus OR certiorari</code></td>
+          </tr>
+          <tr>
+            <th>Case citation</th>
+            <td><code>G.R. No. 192393</code> or <code>gr:192393</code></td>
+          </tr>
+          <tr>
+            <th>By ponente</th>
+            <td><code>ponente:Leonen</code></td>
+          </tr>
+          <tr>
+            <th>By year</th>
+            <td><code>year:2019</code></td>
+          </tr>
+          <tr>
+            <th>By division</th>
+            <td><code>division:"En Banc"</code></td>
+          </tr>
+          <tr>
+            <th>Combined</th>
+            <td><code>ponente:Caguioa year:2019 certiorari</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Technical details -->
+    <section class="about-section">
+      <h2 class="about-subheading">Technical details</h2>
+      <table class="stats-table">
+        <tbody>
+          <tr><th>Retrieval method</th><td>{{ stats.engine_name }}</td></tr>
+          <tr><th>Ranking</th><td>BM25 (k1=1.2, b=0.75)</td></tr>
+          <tr><th>Precision@10</th><td>0.879</td></tr>
+          <tr><th>Mean Reciprocal Rank</th><td>0.983</td></tr>
+          <tr><th>Evaluation queries</th><td>29 hand-judged queries</td></tr>
+          <tr><th>Source</th><td>LawPhil Project (lawphil.net)</td></tr>
+          {% if stats.vocabulary is defined %}
+          <tr><th>Build time</th><td>{{ stats.build_seconds }}s</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </section>
+
+    <div class="about-note">
+        <strong>Disclaimer.</strong> This is a personal project and is not affiliated
+      with the Supreme Court of the Philippines, the Official Gazette, or the LawPhil Project.
+      Decisions are sourced from publicly available records and may not reflect the most recent
+      amendments or corrections. Always verify against official sources before citing in legal proceedings.
+    </div>
 
     <footer>
-      <p>Retrieval: {{ engine.name }}</p>
       <p><a href="/">Back to search</a></p>
     </footer>
 
   </div>
+
+  <script>
+    function toggleTheme() {
+      var root = document.documentElement;
+      var current = root.getAttribute('data-theme');
+      var isDark = current === 'dark' ||
+        (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      var next = isDark ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch(e) {}
+    }
+  </script>
 </body>
 </html>

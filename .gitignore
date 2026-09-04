@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.claude/
+
+scratch/
+
+# Crawled and derived data — regenerable, and large
+data/raw/
+data/parsed/
+data/index/
+!data/parsed/report.txt

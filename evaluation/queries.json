@@ -1,0 +1,474 @@
+[
+  {
+    "id": "q01",
+    "category": "common doctrine",
+    "query": "grave abuse of discretion",
+    "intent": "Common standard of review. Should surface certiorari cases where the standard was applied, not every decision using the phrase in passing.",
+    "relevant_gr": [
+      "G.R. No. 187208",
+      "G.R. No. 155306",
+      "G.R. No. 244242",
+      "G.R. No. 191550",
+      "G.R. Nos. 189161",
+      "G.R. No. 189207",
+      "G.R. No. 224974",
+      "G.R. No. 211017",
+      "G.R. No. 260214"
+    ]
+  },
+  {
+    "id": "q02",
+    "category": "common doctrine",
+    "query": "judicial review separation of powers",
+    "intent": "Foundational constitutional doctrine.",
+    "relevant_gr": [
+      "G.R. No. 231671; G.R. No. 231694",
+      "G.R. No. 191618",
+      "G.R. No. 191618",
+      "G.R. No. 225973; G.R. No. 225984; G.R. No. 226097; G.R. No. 226116; G.R. No. 226117; G.R. No. 226120; G.R. No. 226294",
+      "G.R. No. 192935; G.R. No. 193036",
+      "G.R. No. 210500",
+      "G.R. No. 224302",
+      "G.R. No. 217910"
+    ]
+  },
+  {
+    "id": "q03",
+    "category": "phrase",
+    "query": "\"doctrine of condonation\"",
+    "intent": "Phrase query. Tests that positions are stored in the index and actually used.",
+    "relevant_gr": [
+      "G.R. No. 237330",
+      "G.R. No. 244828",
+      "G.R. No. 229811",
+      "G.R. No. 216871",
+      "G.R. No. 226935; G.R. No. 228238; G.R. No. 228325",
+      "G.R. No. 232325",
+      "G.R. Nos. 217126-27",
+      "G.R. No. 237245",
+      "G.R. No. 237245",
+      "G.R. No. 231120"
+    ]
+  },
+  {
+    "id": "q04",
+    "category": "common doctrine",
+    "query": "res judicata",
+    "intent": "Protected Latin term. Must not be stemmed into something that fails to match.",
+    "relevant_gr": [
+      "G.R. No. 209116",
+      "G.R. No. 213197",
+      "G.R. No. 173783",
+      "G.R. No. 214300",
+      "G.R.No. 256093",
+      "G.R.No. 275125",
+      "G.R. No. 167050",
+      "G.R. No. 235258",
+      "G.R. No. 247844",
+      "G.R. No. 210822"
+    ]
+  },
+  {
+    "id": "q05",
+    "category": "common doctrine",
+    "query": "substantial evidence administrative proceedings",
+    "intent": "Standard of proof in administrative cases. Should favour administrative matters over criminal appeals.",
+    "relevant_gr": [
+      "",
+      "A.M. No. 16-12-03-CA",
+      "G.R. No. 198140",
+      "G.R. No. 240517",
+      "G.R. No. 187317",
+      "G.R. No. 170697"
+    ]
+  },
+  {
+    "id": "q06",
+    "category": "specific doctrine",
+    "query": "doctrine of immutability of judgment",
+    "intent": "Narrow doctrine. Tests whether a rare multi-word concept beats documents that merely contain each word.",
+    "relevant_gr": [
+      "G.R. No. 264146",
+      "G.R. No. 197654",
+      "G.R. No. 221709",
+      "G.R. No. 210540"
+    ]
+  },
+  {
+    "id": "q07",
+    "category": "specific doctrine",
+    "query": "piercing the veil of corporate fiction",
+    "intent": "Specific corporate-law doctrine with a fixed phrasing.",
+    "relevant_gr": [
+      "G.R. No. 182729",
+      "G.R. No. 199687; G.R. No. 201537",
+      "G.R. No. 225544",
+      "G.R. No. 238477",
+      "G.R. No. 191525",
+      "G.R. No. 221813; G.R. No. 222723",
+      "G.R. No. 182770",
+      "G.R. No. 166282; G.R. No. 166283",
+      "G.R. No. 204868",
+      "G.R. Nos. 167530"
+    ]
+  },
+  {
+    "id": "q08",
+    "category": "specific doctrine",
+    "query": "chain of custody dangerous drugs",
+    "intent": "High-volume criminal doctrine. A large relevant set, which makes precision@10 the meaningful metric rather than recall.",
+    "relevant_gr": [
+      "G.R. No. 228880",
+      "G.R. No. 197550",
+      "G.R. No. 198804",
+      "G.R. No. 201293",
+      "G.R. No. 210677",
+      "G.R. No. 224223",
+      "G.R. No. 223141",
+      "G.R. No. 216725",
+      "G.R. No. 189296",
+      "G.R. No. 237977"
+    ]
+  },
+  {
+    "id": "q09",
+    "category": "specific doctrine",
+    "query": "constructive dismissal illegal dismissal backwages",
+    "intent": "Labour law. Tests that three related terms rank cases about all three above cases about one.",
+    "relevant_gr": [
+      "G.R. No. 184618",
+      "G.R. No. 193756",
+      "G.R. No. 166109",
+      "G.R. No. 195428",
+      "G.R. No. 240005",
+      "G.R. No. 185269",
+      "G.R. No. 211210",
+      "G.R. No. 200405",
+      "G.R. No. 195155"
+    ]
+  },
+  {
+    "id": "q10",
+    "category": "specific doctrine",
+    "query": "original registration alienable and disposable land of the public domain",
+    "intent": "Land registration. Long query, mostly common words — a stress test for length normalisation.",
+    "relevant_gr": [
+      "G.R. No. 198277",
+      "G.R. No. 198629",
+      "G.R. No. 200863",
+      "G.R. No. 163767",
+      "G.R. No. 171514",
+      "G.R. No. 199310",
+      "G.R. No. 185092",
+      "G.R. No. 224389",
+      "G.R. No. 176885",
+      "G.R. No. 205665"
+    ]
+  },
+  {
+    "id": "q11",
+    "category": "phrase",
+    "query": "\"grave abuse of discretion amounting to lack or excess of jurisdiction\"",
+    "intent": "Long exact phrase. Should return strictly fewer results than the unquoted form.",
+    "relevant_gr": [
+      "G.R. No. 187208",
+      "G.R. No. 224974",
+      "G.R. No. 165976",
+      "G.R. Nos. 144760-61; G.R. Nos. 167311-12; G.R. Nos. 167316-17; G.R. Nos. 167625-26",
+      "G.R. No. 173089",
+      "G.R. No. 153852",
+      "G.R. No. 226208",
+      "G.R. No. 168749",
+      "G.R. No. 160399",
+      "G.R. No. 189207"
+    ]
+  },
+  {
+    "id": "q12",
+    "category": "phrase",
+    "query": "\"beyond reasonable doubt\"",
+    "intent": "Phrase whose words are individually near-useless. Tests that the phrase check does the work.",
+    "relevant_gr": [
+      "G.R. No. 199894",
+      "G.R. No. 250867",
+      "G.R. No. 261666",
+      "G.R. No. 175842",
+      "G.R. No. 205745",
+      "G.R. No. 193837",
+      "G.R. No. 249196",
+      "G.R. No. 240475",
+      "G.R. No. 224945",
+      "G.R. No. 205950"
+    ]
+  },
+  {
+    "id": "q13",
+    "category": "phrase",
+    "query": "\"real party in interest\"",
+    "intent": "Contains 'party' and 'in' — a phrase that a generic stopword list would destroy.",
+    "relevant_gr": [
+      "G.R. No. 196028",
+      "G.R. No. 186993",
+      "G.R. No. 208928",
+      "G.R. No. 222798",
+      "G.R. No. 186305",
+      "G.R. No. 157449",
+      "G.R. No. 248505",
+      "G.R. No. 208343",
+      "G.R. No. 216109",
+      "G.R. No. 249815"
+    ]
+  },
+  {
+    "id": "q14",
+    "category": "phrase",
+    "query": "\"forum shopping\"",
+    "intent": "Two-word phrase where the words also occur separately and mean nothing apart.",
+    "relevant_gr": [
+      "G.R. No. 214526",
+      "G.R. No. 216139",
+      "A.C. No. 9162",
+      "G.R. No. 224912",
+      "A.C. No. 8037",
+      "G.R. No. 186967",
+      "G.R. No. 208393",
+      "G.R. No. 235641",
+      "A.C. No. 6760",
+      "G.R. No. 171247"
+    ]
+  },
+  {
+    "id": "q15",
+    "category": "citation",
+    "query": "G.R. No. 192393",
+    "intent": "Citation lookup. Should return exactly the cited case, ranked first.",
+    "relevant_gr": [
+      "G.R. No. 192393"
+    ]
+  },
+  {
+    "id": "q16",
+    "category": "citation",
+    "query": "gr:176831",
+    "intent": "The same lookup in field syntax. Must return the same case as the written-out form.",
+    "relevant_gr": [
+      "G.R. No. 176831"
+    ]
+  },
+  {
+    "id": "q17",
+    "category": "citation",
+    "query": "A.M. No. RTJ-19-2552",
+    "intent": "Administrative matter docket. Tests the non-G.R. citation patterns.",
+    "relevant_gr": []
+  },
+  {
+    "id": "q18",
+    "category": "citation",
+    "query": "Rule 65 certiorari",
+    "intent": "A rule reference plus a term. Tests that 'Rule 65' is one token rather than a word and a dropped numeral.",
+    "relevant_gr": [
+      "G.R. No. 244775",
+      "G.R. No. 229288",
+      "G.R. No. 192908",
+      "G.R. No. 187323",
+      "G.R. No. 180962",
+      "G.R. No. 214526",
+      "G.R. No. 189942",
+      "",
+      "G.R. No. 280515",
+      "G.R. No. 240084"
+    ]
+  },
+  {
+    "id": "q19",
+    "category": "citation",
+    "query": "Art. 315 estafa",
+    "intent": "Article reference plus offence. 'Article 315' and 'Art. 315' must collide.",
+    "relevant_gr": [
+      "G.R. No. 239090",
+      "G.R. No. 188217",
+      "G.R. No. 191622",
+      "G.R. No. 199150",
+      "G.R. No. 225697",
+      "G.R. No. 225753",
+      "G.R. No. 238910",
+      "G.R. No. 163662",
+      "G.R. Nos. 209655-60",
+      "G.R. No. 246700"
+    ]
+  },
+  {
+    "id": "q20",
+    "category": "field",
+    "query": "ponente:Leonen",
+    "intent": "Field query on the author of the majority opinion.",
+    "relevant_gr": [
+      "G.R. No. 278353",
+      "G.R.No. 264870",
+      "G.R.No. 248932",
+      "G.R.No. 263627",
+      "G.R. No. 242255",
+      "G.R.No. 214042",
+      "G.R.No. 260973",
+      "G.R. No. 242133",
+      "G.R. No. 206005",
+      "G.R. No. 193521"
+    ]
+  },
+  {
+    "id": "q21",
+    "category": "field",
+    "query": "ponente:Caguioa year:2019",
+    "intent": "Two filters together. Every result must satisfy both.",
+    "relevant_gr": [
+      "G.R. No. 230901",
+      "G.R. No. 227460",
+      "G.R. No. 235020",
+      "G.R. No. 205473",
+      "G.R. No. 239887",
+      "G.R. No. 237812",
+      "G.R. No. 227371",
+      "G.R. No. 199666",
+      "G.R. No. 227854",
+      "G.R. No. 223319; G.R. No. 247736"
+    ]
+  },
+  {
+    "id": "q22",
+    "category": "field",
+    "query": "division:\"En Banc\" constitutional",
+    "intent": "Filter plus a term. Filters narrow, the term ranks.",
+    "relevant_gr": [
+      "G.R. No. 216572",
+      "G.R. No. 216572",
+      "G.R.No. 271701",
+      "G.R. No. 191084",
+      "G.R. Nos. 189431",
+      "G.R. No. 203833",
+      "G.R. No. 194139",
+      "A.M. No. 17-07-05-SC; A.M. No. 18-02-13-SC",
+      "G.R. No. 190526",
+      "G.R. No. 193846"
+    ]
+  },
+  {
+    "id": "q23",
+    "category": "field",
+    "query": "year:2016 certiorari",
+    "intent": "Year filter with a ranked term.",
+    "relevant_gr": [
+      "G.R. No. 168749",
+      "G.R. No. 205573",
+      "G.R. No. 207132",
+      "G.R. No. 185746",
+      "G.R. No. 208181",
+      "G.R. No. 219468",
+      "G.R. No. 191616",
+      "G.R. No. 192491",
+      "G.R. No. 181186",
+      "G.R. No. 205544"
+    ]
+  },
+  {
+    "id": "q24",
+    "category": "caption",
+    "query": "People v. Santos",
+    "intent": "Caption search. Tests that the 'v.' survives tokenisation.",
+    "relevant_gr": [
+      "G.R. No. 235790",
+      "G.R. No. 208759",
+      "G.R. No. 195638",
+      "G.R. No. 193190"
+    ]
+  },
+  {
+    "id": "q25",
+    "category": "natural language",
+    "query": "when can the court review the factual findings of the Court of Appeals",
+    "intent": "A question a law student would actually type. Mostly stopwords; the signal is in three terms.",
+    "relevant_gr": [
+      "G.R. No. 202430",
+      "G.R. No. 253821",
+      "G.R. No. 166726",
+      "G.R. No. 167545",
+      "G.R. No. 171722",
+      "G.R. No. 221411"
+    ]
+  },
+  {
+    "id": "q26",
+    "category": "natural language",
+    "query": "what is the period to file a petition for review on certiorari",
+    "intent": "Procedural question phrased as a sentence.",
+    "relevant_gr": [
+      "G.R. No. 172880",
+      "G.R. No. 244374",
+      "G.R. No. 196084",
+      "G.R. No. 197556",
+      "G.R. No. 188492",
+      "G.R. No. 209907"
+    ]
+  },
+  {
+    "id": "q27",
+    "category": "natural language",
+    "query": "can a lawyer be disbarred for notarizing a document without a commission",
+    "intent": "Disciplinary question. Should reach A.C. matters rather than G.R. appeals.",
+    "relevant_gr": [
+      "A.C. No. 7526",
+      "A.C. No. 11981",
+      "A.C. No. 10132",
+      "A.C. No. 11093",
+      "A.C. No. 11131",
+      "A.C. No. 7231",
+      "A.C. No. 11478",
+      "A.C. No. 13378",
+      "A.C. No. 6475"
+    ]
+  },
+  {
+    "id": "q28",
+    "category": "natural language",
+    "query": "requirements for a valid warrantless arrest",
+    "intent": "Criminal procedure question with a well-defined answer set.",
+    "relevant_gr": [
+      "G.R. No. 200370",
+      "G.R. No. 182601",
+      "G.R. No. 182534",
+      "G.R. No. 227366",
+      "G.R. No. 250306",
+      "G.R. No. 238659",
+      "G.R. No. 243022",
+      "G.R. No. 210731",
+      "G.R. No. 211214",
+      "G.R. No. 240447"
+    ]
+  },
+  {
+    "id": "q29",
+    "category": "adversarial",
+    "query": "no fault third party liability",
+    "intent": "Every content word here ('no', 'party') is on a generic English stopword list. If the custom list is right, this query works.",
+    "relevant_gr": [
+      "G.R. No. 194121",
+      "G.R. No. 212107",
+      "G.R. No. 179382",
+      "G.R. No. 179446",
+      "G.R. No. 171456",
+      "G.R. No. 161909"
+    ]
+  },
+  {
+    "id": "q30",
+    "category": "adversarial",
+    "query": "mandamus quo warranto",
+    "intent": "Two protected Latin terms. Porter would turn 'mandamus' into 'mandamu' and quietly lose the match.",
+    "relevant_gr": [
+      "G.R. No. 243167",
+      "G.R. No. 211140",
+      "G.R. No. 237428",
+      "G.R. No. 217158"
+    ]
+  }
+]

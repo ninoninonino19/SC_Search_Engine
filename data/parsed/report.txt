@@ -1,0 +1,35 @@
+months read        184
+index rows         14226
+records written    14116
+separate opinions  1173
+missing html       117
+empty body         129
+date range         2010-2026
+body chars         median 20,423  min 14  max 467,979
+
+field completeness
+ * gr_number          13,733 / 14,116   97.3%
+ * title              14,116 / 14,116  100.0%
+ * promulgated        14,111 / 14,116  100.0%
+ * body               13,987 / 14,116   99.1%
+   division           14,014 / 14,116   99.3%
+   ponente            12,540 / 14,116   88.8%
+   separate_opinions     664 / 14,116    4.7%
+   footnotes          14,059 / 14,116   99.6%
+
+problems by kind
+   empty-body            129
+   missing-html          110
+   missing-opinion         7
+
+first 10 problems
+   missing-html: C:\Users\ninoe\Documents\PersonalProjects\sc-search\sc-search\data\raw\2010\feb\gr_174599-609_2010.html
+   missing-html: C:\Users\ninoe\Documents\PersonalProjects\sc-search\sc-search\data\raw\2010\feb\gr_179717_2010.html
+   missing-html: C:\Users\ninoe\Documents\PersonalProjects\sc-search\sc-search\data\raw\2010\feb\gr_166536_2010.html
+   missing-html: C:\Users\ninoe\Documents\PersonalProjects\sc-search\sc-search\data\raw\2010\jul\am_rtc-09-2180_2010.html
+   missing-html: C:\Users\ninoe\Documents\PersonalProjects\sc-search\sc-search\data\raw\2010\jul\am_mtc-09-1728_2010.html
+   missing-html: C:\Users\ninoe\Documents\PersonalProjects\sc-search\sc-search\data\raw\2010\jul\gr_147925-26_2010.html
+   missing-html: C:\Users\ninoe\Documents\PersonalProjects\sc-search\sc-search\data\raw\2010\jul\am_rtc-06-1992_2010.html
+   missing-html: C:\Users\ninoe\Documents\PersonalProjects\sc-search\sc-search\data\raw\2010\jul\gr_160422_2010.html
+   missing-html: C:\Users\ninoe\Documents\PersonalProjects\sc-search\sc-search\data\raw\2010\jul\am_rtc-10-2236_2010.html
+   missing-html: C:\Users\ninoe\Documents\PersonalProjects\sc-search\sc-search\data\raw\2010\jul\gr_8390_2010.html

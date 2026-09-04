@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if query %}{{ query }} - {% endif %}Supreme Court decision search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=2">
+</head>
+<body>
+  <div class="page">
+
+    <header class="masthead">
+      <a class="wordmark" href="/">Philippine Supreme Court decisions</a>
+      <p class="corpus">{{ "{:,}".format(engine.doc_count) }} decisions indexed</p>
+    </header>
+
+    <form class="query" action="/search" method="get" role="search">
+      <label class="visually-hidden" for="q">Search decisions</label>
+      <input
+        id="q"
+        name="q"
+        type="search"
+        value="{{ query }}"
+        placeholder="Search decisions..."
+        autocomplete="off"
+        autofocus>
+      <button type="submit">Search</button>
+    </form>
+
+    {% if response is none %}
+      <section class="opening">
+        <p>Full-text search over Philippine Supreme Court decisions (2010-2026),
+        built from scratch. No external search service sits behind this box.</p>
+      </section>
+
+      <section class="examples">
+        <div class="example-group">
+          <h3>Doctrines</h3>
+          <ul>
+            <li><a href="/search?q=grave+abuse+of+discretion">grave abuse of discretion</a></li>
+            <li><a href="/search?q=%22doctrine+of+condonation%22">"doctrine of condonation"</a></li>
+            <li><a href="/search?q=res+judicata">res judicata</a></li>
+            <li><a href="/search?q=piercing+the+veil+of+corporate+fiction">piercing the veil of corporate fiction</a></li>
+          </ul>
+        </div>
+        <div class="example-group">
+          <h3>Citations</h3>
+          <ul>
+            <li><a href="/search?q=G.R.+No.+192393">G.R. No. 192393</a></li>
+            <li><a href="/search?q=gr%3A176831">gr:176831</a></li>
+          </ul>
+        </div>
+        <div class="example-group">
+          <h3>Filters</h3>
+          <ul>
+            <li><a href="/search?q=ponente%3ALeonen">ponente:Leonen</a></li>
+            <li><a href="/search?q=ponente%3ACaguioa+year%3A2019">ponente:Caguioa year:2019</a></li>
+            <li><a href="/search?q=division%3A%22En+Banc%22+constitutional">division:"En Banc" constitutional</a></li>
+          </ul>
+        </div>
+        <div class="example-group">
+          <h3>Natural language</h3>
+          <ul>
+            <li><a href="/search?q=chain+of+custody+dangerous+drugs">chain of custody dangerous drugs</a></li>
+            <li><a href="/search?q=constructive+dismissal+backwages">constructive dismissal backwages</a></li>
+            <li><a href="/search?q=mandamus+OR+certiorari">mandamus OR certiorari</a></li>
+          </ul>
+        </div>
+      </section>
+
+    {% elif not query.strip() %}
+      <section class="opening">
+        <p>Enter a query to search.</p>
+      </section>
+
+    {% elif response.total_hits == 0 %}
+      <section class="opening">
+        <p>No decisions match <strong>{{ query }}</strong>.</p>
+        <p class="try">All terms must appear in a decision. Try removing a word to widen the search,
+        or use <code>OR</code> between alternatives.</p>
+      </section>
+
+    {% else %}
+      <p class="tally">
+        {{ "{:,}".format(response.total_hits) }}
+        {{ "decision" if response.total_hits == 1 else "decisions" }}
+        in {{ "%.1f"|format(response.took_ms) }}&nbsp;ms
+      </p>
+
+      <ol class="results" start="{{ response.offset + 1 }}">
+        {% for hit in response.results %}
+          <li class="result">
+            <h2>
+              {% if hit.source_url %}
+                <a href="{{ hit.source_url }}" rel="noopener" target="_blank">{{ hit.title }}</a>
+              {% else %}
+                {{ hit.title }}
+              {% endif %}
+            </h2>
+            <p class="meta">
+              <span class="citation">{{ hit.gr_number }}</span>
+              {% if hit.promulgated %}<span>{{ hit.promulgated.strftime('%d %B %Y') }}</span>{% endif %}
+              {% if hit.division %}<span>{{ hit.division }}</span>{% endif %}
+              {% if hit.ponente %}<span>{{ hit.ponente }}</span>{% endif %}
+              <span class="score" title="BM25 relevance score">{{ "%.3f"|format(hit.score) }}</span>
+            </p>
+            <p class="snippet">{{ hit.snippet | safe }}</p>
+          </li>
+        {% endfor %}
+      </ol>
+
+      {% set total_pages = ((response.total_hits - 1) // response.limit) + 1 %}
+      <nav class="paging" aria-label="Search results pagination">
+        {% if page > 1 %}
+          <a href="/search?q={{ query|urlencode }}&amp;page={{ page - 1 }}" class="paging-link">Previous</a>
+        {% endif %}
+        <span class="paging-info">Page {{ page }} of {{ "{:,}".format(total_pages) }}</span>
+        {% if response.has_more %}
+          <a href="/search?q={{ query|urlencode }}&amp;page={{ page + 1 }}" class="paging-link">Next</a>
+        {% endif %}
+      </nav>
+    {% endif %}
+
+    <footer>
+      <p>Retrieval: {{ engine.name }}</p>
+      <p><a href="/about">About this search engine</a></p>
+    </footer>
+
+  </div>
+
+  <script>
+    document.addEventListener('keydown', function(e) {
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        var active = document.activeElement;
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
+        e.preventDefault();
+        document.getElementById('q').focus();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About - Supreme Court decision search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=2">
+</head>
+<body>
+  <div class="page">
+
+    <header class="masthead">
+      <a class="wordmark" href="/">Philippine Supreme Court decisions</a>
+      <p class="corpus">{{ stats.doc_count }} decisions indexed</p>
+    </header>
+
+    <section class="opening" style="margin-top: 2rem;">
+      <h1 style="font-family: var(--serif); font-size: 1.375rem; font-weight: 500; margin: 0 0 1.25rem;">About this search engine</h1>
+
+      <p>A full-text search engine built from scratch over Philippine Supreme Court
+      decisions (2010-2026). No Elasticsearch, no Lucene, no Postgres full-text
+      search, no vector database, no embedding API anywhere in the retrieval path.</p>
+
+      <p>Every component (crawler, parser, tokenizer, inverted index, and
+      ranking function) is hand-written in Python.</p>
+    </section>
+
+    <table class="stats-table">
+      <tbody>
+        <tr><th>Documents</th><td>{{ stats.doc_count }}</td></tr>
+        <tr><th>Retrieval</th><td>{{ stats.engine_name }}</td></tr>
+        {% if stats.vocabulary is defined %}
+        <tr><th>Vocabulary</th><td>{{ stats.vocabulary }} terms</td></tr>
+        <tr><th>Tokens indexed</th><td>{{ stats.total_tokens }}</td></tr>
+        <tr><th>Avg document length</th><td>{{ stats.avg_doc_length }} tokens</td></tr>
+        <tr><th>Index size</th><td>{{ stats.index_size_mb }} MiB</td></tr>
+        <tr><th>Corpus size</th><td>{{ stats.corpus_size_mb }} MiB</td></tr>
+        <tr><th>Build time</th><td>{{ stats.build_seconds }}s</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+
+    <section class="opening" style="margin-top: 2rem;">
+      <h2 style="font-family: var(--serif); font-size: 1.125rem; font-weight: 500; margin: 0 0 0.75rem;">Query syntax</h2>
+      <ul style="padding-left: 1.25rem; margin: 0 0 1rem;">
+        <li><strong>Terms</strong> - <code>grave abuse of discretion</code> (all terms must appear)</li>
+        <li><strong>OR</strong> - <code>mandamus OR certiorari</code></li>
+        <li><strong>Phrases</strong> - <code>"beyond reasonable doubt"</code></li>
+        <li><strong>Citation</strong> - <code>G.R. No. 192393</code> or <code>gr:192393</code></li>
+        <li><strong>Ponente</strong> - <code>ponente:Leonen</code></li>
+        <li><strong>Year</strong> - <code>year:2019</code></li>
+        <li><strong>Division</strong> - <code>division:"En Banc"</code></li>
+        <li><strong>Combined</strong> - <code>ponente:Caguioa year:2019 certiorari</code></li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>Retrieval: {{ engine.name }}</p>
+      <p><a href="/">Back to search</a></p>
+    </footer>
+
+  </div>
+</body>
+</html>

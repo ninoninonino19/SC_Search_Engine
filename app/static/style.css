@@ -867,15 +867,67 @@ details[open] > .syntax-toggle::before {
 /* Footer ------------------------------------------------------------------ */
 
 footer {
-  margin-top: 48px;
-  padding-top: 16px;
+  margin-top: 56px;
+  padding: 32px 0 24px;
   border-top: 1px solid var(--divider);
   font-size: 12px;
   color: var(--ink-muted);
   letter-spacing: -0.12px;
 }
 
-footer p { margin: 2px 0; }
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.footer-brand {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.footer-wordmark {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+  margin-bottom: 6px;
+}
+
+.footer-desc {
+  margin: 0;
+  max-width: 36ch;
+}
+
+.footer-heading {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.footer-bottom {
+  padding-top: 16px;
+  border-top: 1px solid var(--divider);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-bottom p { margin: 0; }
 
 footer a {
   color: var(--ink-muted);
@@ -913,4 +965,6 @@ footer a:hover { color: var(--primary); }
   .result h2 { font-size: 17px; }
   .paging { gap: 4px; }
   .paging-num, .paging-arrow { min-width: 32px; height: 32px; font-size: 13px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 20px; }
+  .footer-bottom { flex-direction: column; gap: 4px; text-align: center; }
 }

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% if query %}{{ query }} - {% endif %}Supreme Court Decision Search</title>
-  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=8">
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=9">
   <script>
     (function() {
       var t = localStorage.getItem('theme');
@@ -277,8 +277,32 @@
     {% endif %}
 
     <footer>
-      <p>Retrieval: {{ engine.name }}</p>
-      <p><a href="/about">About this search engine</a></p>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-wordmark">SC Decision Search</div>
+          <p class="footer-desc">Full-text search across {{ "{:,}".format(engine.doc_count) }} Philippine Supreme Court decisions, built entirely from scratch.</p>
+        </div>
+        <div>
+          <div class="footer-heading">Navigate</div>
+          <ul class="footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="#" onclick="document.getElementById('q').focus();return false">Search</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-heading">Details</div>
+          <ul class="footer-links">
+            <li>Retrieval: {{ engine.name }}</li>
+            <li>Coverage: 2010&ndash;2026</li>
+            <li>Source: LawPhil Project</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>A personal project &mdash; not affiliated with the Supreme Court of the Philippines.</p>
+        <p><a href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">Back to top &uarr;</a></p>
+      </div>
     </footer>
 
   </div>

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% if query %}{{ query }} - {% endif %}Supreme Court Decision Search</title>
-  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=7">
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v=8">
   <script>
     (function() {
       var t = localStorage.getItem('theme');
@@ -18,13 +18,22 @@
     <header class="masthead">
       <div class="masthead-text">
         <a class="wordmark" href="/">Philippine Supreme Court Decisions</a>
+        {% if response is not none %}
         <p class="corpus">{{ "{:,}".format(engine.doc_count) }} decisions &middot; 2010-2026</p>
+        {% endif %}
       </div>
       <button class="theme-toggle" type="button" aria-label="Toggle theme" onclick="toggleTheme()">
         <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
       </button>
     </header>
+
+    {% if response is none %}
+    <div class="hero">
+      <h1 class="hero-tagline">Search Philippine Supreme Court Decisions</h1>
+      <p class="hero-sub">Full-text search across {{ "{:,}".format(engine.doc_count) }} decisions promulgated between 2010 and 2026. Built entirely from scratch.</p>
+    </div>
+    {% endif %}
 
     <div class="search-sticky">
       <form class="query" action="/search" method="get" role="search">
@@ -39,9 +48,31 @@
           autofocus>
         <button type="submit">Search</button>
       </form>
+      {% if response is none %}
+      <p class="kbd-hint">Press <kbd>/</kbd> to focus search</p>
+      {% endif %}
     </div>
 
     {% if response is none %}
+
+      <div class="stats-strip">
+        <div class="stats-strip-item">
+          <div class="stats-strip-value">{{ "{:,}".format(engine.doc_count) }}</div>
+          <div class="stats-strip-label">Decisions</div>
+        </div>
+        <div class="stats-strip-item">
+          <div class="stats-strip-value">2010&ndash;2026</div>
+          <div class="stats-strip-label">Coverage</div>
+        </div>
+        <div class="stats-strip-item">
+          <div class="stats-strip-value">BM25</div>
+          <div class="stats-strip-label">Ranking</div>
+        </div>
+        <div class="stats-strip-item">
+          <div class="stats-strip-value">&lt;300ms</div>
+          <div class="stats-strip-label">Response</div>
+        </div>
+      </div>
 
       <section class="browse">
         <h2 class="section-label">Browse by practice area</h2>
@@ -123,41 +154,43 @@
       </section>
 
       <section class="syntax-ref">
-        <h2 class="section-label">Search syntax</h2>
-        <div class="syntax-grid">
-          <div class="syntax-item">
-            <span class="syntax-label">All terms</span>
-            <code>grave abuse of discretion</code>
+        <details>
+          <summary class="syntax-toggle">Search syntax</summary>
+          <div class="syntax-grid">
+            <div class="syntax-item">
+              <span class="syntax-label">All terms</span>
+              <code>grave abuse of discretion</code>
+            </div>
+            <div class="syntax-item">
+              <span class="syntax-label">Exact phrase</span>
+              <code>"beyond reasonable doubt"</code>
+            </div>
+            <div class="syntax-item">
+              <span class="syntax-label">Either term</span>
+              <code>mandamus OR certiorari</code>
+            </div>
+            <div class="syntax-item">
+              <span class="syntax-label">Case citation</span>
+              <code>G.R. No. 192393</code> or <code>gr:192393</code>
+            </div>
+            <div class="syntax-item">
+              <span class="syntax-label">By ponente</span>
+              <code>ponente:Leonen</code>
+            </div>
+            <div class="syntax-item">
+              <span class="syntax-label">By year</span>
+              <code>year:2019</code>
+            </div>
+            <div class="syntax-item">
+              <span class="syntax-label">By division</span>
+              <code>division:"En Banc"</code>
+            </div>
+            <div class="syntax-item">
+              <span class="syntax-label">Combined</span>
+              <code>ponente:Caguioa year:2019 certiorari</code>
+            </div>
           </div>
-          <div class="syntax-item">
-            <span class="syntax-label">Exact phrase</span>
-            <code>"beyond reasonable doubt"</code>
-          </div>
-          <div class="syntax-item">
-            <span class="syntax-label">Either term</span>
-            <code>mandamus OR certiorari</code>
-          </div>
-          <div class="syntax-item">
-            <span class="syntax-label">Case citation</span>
-            <code>G.R. No. 192393</code> or <code>gr:192393</code>
-          </div>
-          <div class="syntax-item">
-            <span class="syntax-label">By ponente</span>
-            <code>ponente:Leonen</code>
-          </div>
-          <div class="syntax-item">
-            <span class="syntax-label">By year</span>
-            <code>year:2019</code>
-          </div>
-          <div class="syntax-item">
-            <span class="syntax-label">By division</span>
-            <code>division:"En Banc"</code>
-          </div>
-          <div class="syntax-item">
-            <span class="syntax-label">Combined</span>
-            <code>ponente:Caguioa year:2019 certiorari</code>
-          </div>
-        </div>
+        </details>
       </section>
 
     {% elif not query.strip() %}

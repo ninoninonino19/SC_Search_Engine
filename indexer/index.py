@@ -41,7 +41,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-from indexer.codec import decode_postings, iter_doc_freqs, write_varint
+from indexer.codec import decode_postings, iter_doc_freqs, read_varint, write_varint
 from indexer.tokenizer import Token, scan, tokenize
 
 INDEX_VERSION = 1
@@ -104,6 +104,7 @@ class InvertedIndex:
         total = sum(self.doc_lengths)
         self.avgdl = total / len(docs) if docs else 0.0
         self.total_tokens = total
+        self._df_cache: dict[str, int] = {}
 
     # -- build --------------------------------------------------------------
 
@@ -201,10 +202,15 @@ class InvertedIndex:
         return len(self.postings)
 
     def doc_frequency(self, term: str) -> int:
+        cached = self._df_cache.get(term)
+        if cached is not None:
+            return cached
         blob = self.postings.get(term)
         if not blob:
             return 0
-        return sum(1 for _ in iter_doc_freqs(blob))
+        df = sum(1 for _ in iter_doc_freqs(blob))
+        self._df_cache[term] = df
+        return df
 
     def postings_for(self, term: str) -> list[tuple[int, int, list[int]]]:
         blob = self.postings.get(term)

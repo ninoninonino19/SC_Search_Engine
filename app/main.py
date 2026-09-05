@@ -10,6 +10,7 @@ from __future__ import annotations
 import csv
 import io
 import os
+import re
 import threading
 import time
 from collections import OrderedDict
@@ -214,6 +215,7 @@ def search(
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=MAX_LIMIT),
 ):
+    started = time.perf_counter()
     engine: SearchEngine = request.app.state.engine
     cache: SearchCache = request.app.state.cache
     cache_key = f"{q}|{limit}|{page}"
@@ -229,6 +231,8 @@ def search(
     elif result.total_hits > 0:
         related = _related_searches(engine, result, q)
 
+    total_ms = (time.perf_counter() - started) * 1000
+
     return templates.TemplateResponse(
         request=request,
         name="search.html",
@@ -239,6 +243,7 @@ def search(
             "page": page,
             "suggestion": suggestion,
             "related": related,
+            "total_ms": total_ms,
             "ponentes": request.app.state.ponentes,
             "divisions": request.app.state.divisions,
             "year_range": request.app.state.year_range,
@@ -451,30 +456,31 @@ def _related_searches(engine, result, query: str) -> list[str]:
     if index is None or not result.results:
         return []
 
+    n_docs = index.doc_count
+    upper = int(n_docs * 0.15)
+
     query_terms = {t.text for t in tokenize(normalize(query))}
     term_scores: dict[str, float] = {}
     surface_forms: dict[str, str] = {}
-    top_docs = result.results[:5]
+    _HAS_DIGIT = re.compile(r"\d")
 
-    for hit in top_docs:
+    for hit in result.results[:5]:
         body = index.body(hit.doc_id)
         seen_stems: set[str] = set()
         for tok in scan(body):
             word = tok.text
             if ":" in word or word == "vs" or word in STOPWORDS or len(word) < 4:
                 continue
-            if any(c.isdigit() for c in word):
+            if _HAS_DIGIT.search(word):
                 continue
             stemmed = word if word in PROTECTED else porter_stem(word)
             if stemmed in query_terms or stemmed in seen_stems:
                 continue
             seen_stems.add(stemmed)
             df = index.doc_frequency(stemmed)
-            if 10 < df < index.doc_count * 0.15:
-                idf = math.log(index.doc_count / (df + 1))
-                old_score = term_scores.get(stemmed, 0)
-                new_score = old_score + idf
-                term_scores[stemmed] = new_score
+            if 10 < df < upper:
+                idf = math.log(n_docs / (df + 1))
+                term_scores[stemmed] = term_scores.get(stemmed, 0) + idf
                 if stemmed not in surface_forms or len(word) > len(surface_forms[stemmed]):
                     surface_forms[stemmed] = word
 

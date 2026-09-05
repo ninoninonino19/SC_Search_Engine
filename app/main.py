@@ -458,6 +458,7 @@ def _related_searches(engine, result, query: str) -> list[str]:
 
     n_docs = index.doc_count
     upper = int(n_docs * 0.15)
+    max_stems_per_doc = 150
 
     query_terms = {t.text for t in tokenize(normalize(query))}
     term_scores: dict[str, float] = {}
@@ -468,6 +469,8 @@ def _related_searches(engine, result, query: str) -> list[str]:
         body = index.body(hit.doc_id)
         seen_stems: set[str] = set()
         for tok in scan(body):
+            if len(seen_stems) >= max_stems_per_doc:
+                break
             word = tok.text
             if ":" in word or word == "vs" or word in STOPWORDS or len(word) < 4:
                 continue

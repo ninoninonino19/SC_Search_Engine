@@ -219,19 +219,19 @@ def search(
     engine: SearchEngine = request.app.state.engine
     cache: SearchCache = request.app.state.cache
     cache_key = f"{q}|{limit}|{page}"
-    result = cache.get(cache_key)
-    if result is None:
+    cached = cache.get(cache_key)
+    if cached is not None:
+        result, suggestion, related, total_ms = cached
+    else:
         result = engine.search(q, limit=limit, offset=(page - 1) * limit)
-        cache.put(cache_key, result)
-
-    suggestion = None
-    related = []
-    if result.total_hits == 0 and q.strip():
-        suggestion = _spell_suggest(engine, q)
-    elif result.total_hits > 0:
-        related = _related_searches(engine, result, q)
-
-    total_ms = (time.perf_counter() - started) * 1000
+        suggestion = None
+        related = []
+        if result.total_hits == 0 and q.strip():
+            suggestion = _spell_suggest(engine, q)
+        elif result.total_hits > 0:
+            related = _related_searches(engine, result, q)
+        total_ms = (time.perf_counter() - started) * 1000
+        cache.put(cache_key, (result, suggestion, related, total_ms))
 
     return templates.TemplateResponse(
         request=request,
@@ -262,7 +262,7 @@ def api_search(
     engine: SearchEngine = request.app.state.engine
     cache: SearchCache = request.app.state.cache
     page = (offset // limit) + 1 if limit else 1
-    cache_key = f"{q}|{limit}|{page}"
+    cache_key = f"api|{q}|{limit}|{page}"
     result = cache.get(cache_key)
     if result is None:
         result = engine.search(q, limit=limit, offset=offset)

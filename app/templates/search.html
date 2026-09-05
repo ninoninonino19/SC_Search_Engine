@@ -481,6 +481,11 @@
       }).join('');
     }
 
+    /* Save query to history when results page loads */
+    {% if response is not none and query.strip() %}
+    saveHistory({{ query | tojson }});
+    {% endif %}
+
     /* Show history on homepage */
     {% if response is none %}
     renderHistory();

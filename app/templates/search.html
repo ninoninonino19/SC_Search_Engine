@@ -70,25 +70,6 @@
 
     {% if response is none %}
 
-      <div class="stats-strip">
-        <div class="stats-strip-item">
-          <div class="stats-strip-value">{{ "{:,}".format(engine.doc_count) }}</div>
-          <div class="stats-strip-label">Decisions</div>
-        </div>
-        <div class="stats-strip-item">
-          <div class="stats-strip-value">2010&ndash;2026</div>
-          <div class="stats-strip-label">Coverage</div>
-        </div>
-        <div class="stats-strip-item">
-          <div class="stats-strip-value">BM25</div>
-          <div class="stats-strip-label">Ranking</div>
-        </div>
-        <div class="stats-strip-item">
-          <div class="stats-strip-value">&lt;300ms</div>
-          <div class="stats-strip-label">Response</div>
-        </div>
-      </div>
-
       {# Search history #}
       <section id="history-section" class="search-history-section" hidden>
         <h2 class="section-label">Recent searches</h2>
